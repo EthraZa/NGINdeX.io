@@ -4,6 +4,9 @@ A Bootstrap based autoindex for Nginx without the fancy index module.
 It will read up the content from a Nginx folder and create a pretty Bootstrap table to browse it
 with column sort and filter.
 
+**Screenshot:**
+
+![StrapIndex](https://raw.githubusercontent.com/EthraZa/strapindex/main/img/StrapIndex.png)
 
 GitHub: https://github.com/EthraZa/strapindex
 
