@@ -23,7 +23,7 @@
 	$(document).ready(function(){
 		// Filter
 		$("#file-search").on("keyup", function() {
-			var value = $(this).val().toLowerCase();
+			let value = $(this).val().toLowerCase();
 			if (value.length == 0 || value.length >= 3) {
 				$("#file-table tbody tr").filter(function() {
 					$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
@@ -33,7 +33,7 @@
 
 
 		// Back button
-		var btnback = document.getElementById("btn-back-to-top");
+		let btnback = document.getElementById("btn-back-to-top");
 		btnback.addEventListener("click", function() {
 			window.scrollTo(0, 0);
 		});
@@ -51,7 +51,7 @@
 		let tblhtml = $("#file-table tbody").html();
 		let output = $('#json-output');
 		let json = JSON.parse(output.text());
-		let fl = dr = 0;
+		let fl = dr = sz = 0;
 
 		output.remove();
 
@@ -64,12 +64,13 @@
 				tblhtml += '<tr><td><a href="' + window.location.pathname + '' + entry.name + '/"><span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;&nbsp;' + entry.name + '</a></td><td>' + entry.type + '</td><td>' + entry.mtime + '</td><td></td></tr>';
 			} else if (entry.type == 'file') {
 				++fl;
+				sz += entry.size;
 				tblhtml += '<tr><td><a href="' + window.location.pathname + '' + entry.name +'"><span class="glyphicon glyphicon-file"></span>&nbsp;&nbsp;&nbsp;' + entry.name + '</a></td><td>' + entry.type + '</td><td>' + entry.mtime + '</td><td>' + humanFileSize(entry.size, true, 2) +  '</td></tr>';
 			}
 		}
 
 		$('#file-table tbody').html(tblhtml);
-		$("#file-table tfoot tr td").html('<span class="glyphicon glyphicon-folder-open"> ' + dr + '</span>&nbsp;&nbsp;&nbsp; <span class="glyphicon glyphicon-file"> ' + fl + '</span> &nbsp;&nbsp;&nbsp; <strong>Total:</strong> ' + (dr+fl));
+		$("#file-table tfoot tr td").html('<span class="glyphicon glyphicon-folder-open"> ' + dr + '</span>&nbsp;&nbsp;&nbsp; <span class="glyphicon glyphicon-file"> ' + fl + '</span> &nbsp;&nbsp;&nbsp; <strong>Total:</strong> ' + (dr+fl) + ' <strong>/</strong> ' + humanFileSize(sz, true, 3));
 
 		$('#file-table').tableSortable();
 		$('.bg_load').delay(1500).hide('slow');
@@ -78,7 +79,7 @@
 
 	//Gets the parent directory from the documents pathname
 	function getParent(path) {
-		var _split = path.split('/');
+		let _split = path.split('/');
 		_split = _split.slice(0, _split.length -2);
 		return _split.join('/') + '/';
 	}
