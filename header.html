@@ -1,0 +1,112 @@
+<!Doctype html>
+<!--Header-->
+<html>
+    <head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="utf-8"/> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Index</title>
+        <script type="text/javascript">
+            var title = ('> ' + window.location.pathname); //Loads up when this part is loaded 
+            document.title = title;
+        </script>
+        <link rel="stylesheet" href="/autoindex/css/bootstrap.min.css"/>
+        <link rel="stylesheet" href="/autoindex/css/bootstrap-theme.min.css"/>
+        <link rel="stylesheet" href="/autoindex/css/loader.css"/>
+        <style>
+            html {
+	            height: 100%;
+	            box-sizing: border-box;
+                padding-top: 80px;
+            }
+            body {
+                position: relative;
+                min-height: 100%;
+                margin: 0;
+                padding-bottom: 6rem;
+            }
+            #main-nav {
+                background-image: url(/autoindex/img/footer.jpg) !important;
+                background-repeat: repeat;
+            }
+            
+            #page {
+                margin: 0 auto;
+                padding: 5px;
+                width: 94%;
+            }
+            #file-table {
+                font-size:14px;
+            }
+            footer {
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                right: 0;
+                background-color: #f2f2f2;
+                background-image: url(/autoindex/img/footer.jpg);
+                font-size: 18px;
+                text-align: center;
+                color:rgb(59, 59, 59);
+                height: 50px;
+                line-height: 50px;
+                border-top: solid thin #bfbfbf;
+                -webkit-box-shadow: inset 0px 1px 10px #b5b2b2;
+            }
+            .label > a { color:white; }
+            .label > a:hover {
+                color: #f0f0f0;
+                text-decoration: none;
+            }
+            #json-output { display: none; }
+        </style>
+    </head>
+    <body>
+        <div id="page">
+            <nav class="navbar navbar-default navbar-fixed-top" id="main-nav">
+                <div class="navbar-header">
+                    <p class="navbar-text">
+                        <noscript>
+                            <span class="glyphicon glyphicon-exclamation-sign" style="color:red;"></span> JavaScript is not enabled! Please reload this page with it enabled.
+                        </noscript>
+                    </p>
+                    <div id="page-header" class="navbar-brand"></div>
+                </div>
+            </nav>
+            
+            <noscript>
+            </noscript>
+            
+            <!--To be Removed in the future-->
+            <table class="table table-bordered table-striped" id="file-table">
+		<thead>
+                <tr class="table-header">
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th data-table-sortable-type="string">Date</th>
+                    <th>Size</th>
+                </tr>
+                <tr class="parent-dir">
+                    <td id="parent-link">
+                    </td>
+                    <td colspan=3><input class="form-control" id="file-search" type="text" placeholder="Filter..."></td>
+                </tr>
+		</thead>
+            </table>
+        </div>
+
+	<div class="bg_load"></div>
+	<div class="wrapper">
+	    <div class="inner">
+	        <span>L</span>
+	        <span>o</span>
+	        <span>a</span>
+	        <span>d</span>
+	        <span>i</span>
+	        <span>n</span>
+	        <span>g</span>
+	    </div>
+	</div>
+        <!--nginx json output, continues to footer.html-->
+        <div id="json-output">
