@@ -11,6 +11,7 @@
 	var defaultConfig = "/autoindex/default.json"; //fall back to this config if uneable to be read
 
 	$(document).ready(function(){
+		// Filter
 		$("#file-search").on("keyup", function() {
 			var value = $(this).val().toLowerCase();
 			if (value.length == 0 || value.length >= 3) {
@@ -19,9 +20,24 @@
 				});
 			}
 		});
+
+
+		// Back button
+		var btnback = document.getElementById("btn-back-to-top");
+		btnback.addEventListener("click", function() {
+			window.scrollTo(0, 0);
+		});
+
+		window.onscroll = function () {
+			if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+				btnback.style.display = "block";
+			} else {
+				btnback.style.display = "none";
+			}
+		};
 	});
 
-	$('#page-header').html('<span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;&nbsp;<small>' + window.location.pathname + '</small>');
+	$('#page-header').html('<span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;&nbsp;<small>' + window.location.pathname + '&nbsp;&nbsp;&nbsp;<a href="' + window.location.pathname +'"><span class="glyphicon glyphicon-refresh"></span></a></small>');
 	if (window.location.pathname.endsWith('.html')) { alert('WARNING! Strange setup detected, this page may not work (Did you correctly configure nginx correctly?)'); }
 	$('#parent-link').html('<a href="' + getParent(window.location.pathname) +'"><span class="glyphicon glyphicon-level-up"></span> ' + getParent(window.location.pathname).split('/').slice(-2).shift() + '/' + '</a>');
 

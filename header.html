@@ -13,7 +13,7 @@
         </script>
         <link rel="stylesheet" href="/autoindex/css/bootstrap.min.css"/>
         <link rel="stylesheet" href="/autoindex/css/bootstrap-theme.min.css"/>
-        <link rel="stylesheet" href="/autoindex/css/loader.css"/>
+        <link rel="stylesheet" href="/autoindex/css/file.css"/>
         <style>
             html {
 	            height: 100%;
@@ -88,13 +88,17 @@
                     <th>Size</th>
                 </tr>
                 <tr class="parent-dir">
-                    <td id="parent-link">
+                    <td id="parent-link" style="vertical-align: middle">
                     </td>
                     <td colspan=3><input class="form-control" id="file-search" type="text" placeholder="Filter..."></td>
                 </tr>
 		</thead>
             </table>
         </div>
+
+	<button type="button" class="btn btn-default btn-floating btn-lg" id="btn-back-to-top">
+		<span class="glyphicon glyphicon-circle-arrow-up" aria-hidden="true"></span>
+	</button>
 
 	<div class="bg_load"></div>
 	<div class="wrapper">
@@ -108,5 +112,6 @@
 	        <span>g</span>
 	    </div>
 	</div>
+
         <!--nginx json output, continues to footer.html-->
         <div id="json-output">
