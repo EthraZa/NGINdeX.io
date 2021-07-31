@@ -10,9 +10,15 @@
 	var configFile = "config.json"; //Allows webmasters to design the site with a simple config file
 	var defaultConfig = "/autoindex/default.json"; //fall back to this config if uneable to be read
 
-	$('#page-header').html('<span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;&nbsp;<small>' + window.location.pathname + '&nbsp;&nbsp;&nbsp;<a href="' + window.location.pathname +'"><span class="glyphicon glyphicon-refresh"></span></a></small>');
-	if (window.location.pathname.endsWith('.html')) { alert('WARNING! Strange setup detected, this page may not work (Did you correctly configure nginx correctly?)'); }
-	$('#parent-link').html('<a href="' + getParent(window.location.pathname) +'"><span class="glyphicon glyphicon-level-up"></span> ' + getParent(window.location.pathname).split('/').slice(-2).shift() + '/' + '</a>');
+	if (window.location.pathname.endsWith('.html')) { alert('WARNING! The given path shoud be a folder, not a html file. Did you configure nginx correctly?'); }
+
+	$('#page-header').html('<span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;&nbsp;<small>' +
+		window.location.pathname.split('/').reduce(function(a, v, i, o) {
+			return a += ' / <a href="/' + o.slice(1, i+1).join('/') + '">' + v + '</a> ';
+		})
+	);
+
+	$('#parent-link').html('<a href="' + getParent(window.location.pathname) +'"><big><span class="glyphicon glyphicon-level-up"></span></big> ../' + getParent(window.location.pathname).split('/').slice(-2).shift() + '</a>');
 
 	$(document).ready(function(){
 		// Filter
@@ -42,7 +48,7 @@
 	});
 
 	document.addEventListener('DOMContentLoaded', function() {
-		let tblhtml = $('#file-table').html();
+		let tblhtml = $("#file-table tbody").html();
 		let output = $('#json-output');
 		let json = JSON.parse(output.text());
 		let fl = dr = 0;
@@ -62,10 +68,8 @@
 			}
 		}
 
-		tblhtml += '<tfoot><tr><td colspan="4" class="text-right"><span class="glyphicon glyphicon-folder-open"> ' + dr + '</span>&nbsp;&nbsp;&nbsp; <span class="glyphicon glyphicon-file"> ' + fl + '</span> &nbsp;&nbsp;&nbsp; <strong>Total: ' + (dr+fl) + ' </strong></td></tr></tfoot>';
-
-
-		$('#file-table').html(tblhtml);
+		$('#file-table tbody').html(tblhtml);
+		$("#file-table tfoot tr td").html('<span class="glyphicon glyphicon-folder-open"> ' + dr + '</span>&nbsp;&nbsp;&nbsp; <span class="glyphicon glyphicon-file"> ' + fl + '</span> &nbsp;&nbsp;&nbsp; <strong>Total:</strong> ' + (dr+fl));
 
 		$('#file-table').tableSortable();
 		$('.bg_load').delay(1500).hide('slow');
