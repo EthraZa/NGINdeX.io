@@ -8,7 +8,7 @@ with column sort and filter.
 
 ![StrapIndex](https://raw.githubusercontent.com/EthraZa/strapindex/main/img/StrapIndex.png)
 
-GitHub: https://github.com/EthraZa/strapindex
+Source: https://github.com/EthraZa/strapindex
 
 # Install
 Place the content into a folder named autoindex in the root directory
@@ -20,12 +20,17 @@ and copy the nginx.example.conf setup to your config file.
 3. When the download is done, the JSON is read and parsed by JavaScript
 4. The table with the server folder content is then build and the loading CSS animation is closed
 
----
+
+<br><br>
+
 **Based on the work of**
-* [ccarney16/nginx-autoindex](https://github.com/ccarney16/nginx-autoindex) - A fancier autoindex for nginx (without the fancy index module!)
 
-Thank you.
+ [ccarney16/nginx-autoindex](https://github.com/ccarney16/nginx-autoindex) - A fancier autoindex for nginx (without the fancy index module!)
 
 ---
+<br><br><br><br>
 
-> If you have two backup copies, you have one, if you have one, you have none.
+# Quote
+> "People will not look forward to posterity, who never look backward to their ancestors."
+>
+> ― Edmund Burke, Reflections on the Revolution in France
