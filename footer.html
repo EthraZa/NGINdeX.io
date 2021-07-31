@@ -10,6 +10,10 @@
 	var configFile = "config.json"; //Allows webmasters to design the site with a simple config file
 	var defaultConfig = "/autoindex/default.json"; //fall back to this config if uneable to be read
 
+	$('#page-header').html('<span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;&nbsp;<small>' + window.location.pathname + '&nbsp;&nbsp;&nbsp;<a href="' + window.location.pathname +'"><span class="glyphicon glyphicon-refresh"></span></a></small>');
+	if (window.location.pathname.endsWith('.html')) { alert('WARNING! Strange setup detected, this page may not work (Did you correctly configure nginx correctly?)'); }
+	$('#parent-link').html('<a href="' + getParent(window.location.pathname) +'"><span class="glyphicon glyphicon-level-up"></span> ' + getParent(window.location.pathname).split('/').slice(-2).shift() + '/' + '</a>');
+
 	$(document).ready(function(){
 		// Filter
 		$("#file-search").on("keyup", function() {
@@ -37,26 +41,32 @@
 		};
 	});
 
-	$('#page-header').html('<span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;&nbsp;<small>' + window.location.pathname + '&nbsp;&nbsp;&nbsp;<a href="' + window.location.pathname +'"><span class="glyphicon glyphicon-refresh"></span></a></small>');
-	if (window.location.pathname.endsWith('.html')) { alert('WARNING! Strange setup detected, this page may not work (Did you correctly configure nginx correctly?)'); }
-	$('#parent-link').html('<a href="' + getParent(window.location.pathname) +'"><span class="glyphicon glyphicon-level-up"></span> ' + getParent(window.location.pathname).split('/').slice(-2).shift() + '/' + '</a>');
-
 	document.addEventListener('DOMContentLoaded', function() {
-        	//lets load the json object.
-		let json = JSON.parse($('#json-output').text());
-		var tblhtml = $('#file-table').html();
+		let tblhtml = $('#file-table').html();
+		let output = $('#json-output');
+		let json = JSON.parse(output.text());
+		let fl = dr = 0;
+
+		output.remove();
 
 		for (let entry of json) {
 			let mtime = new Date(entry.mtime);
 			entry.mtime = mtime.toLocaleDateString() + ' ' + mtime.toLocaleTimeString();
 
 			if (entry.type == "directory") {
+				++dr;
 				tblhtml += '<tr><td><a href="' + window.location.pathname + '' + entry.name + '/"><span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;&nbsp;' + entry.name + '</a></td><td>' + entry.type + '</td><td>' + entry.mtime + '</td><td></td></tr>';
 			} else if (entry.type == 'file') {
+				++fl;
 				tblhtml += '<tr><td><a href="' + window.location.pathname + '' + entry.name +'"><span class="glyphicon glyphicon-file"></span>&nbsp;&nbsp;&nbsp;' + entry.name + '</a></td><td>' + entry.type + '</td><td>' + entry.mtime + '</td><td>' + humanFileSize(entry.size, true, 2) +  '</td></tr>';
 			}
 		}
+
+		tblhtml += '<tfoot><tr><td colspan="4" class="text-right"><span class="glyphicon glyphicon-folder-open"> ' + dr + '</span>&nbsp;&nbsp;&nbsp; <span class="glyphicon glyphicon-file"> ' + fl + '</span> &nbsp;&nbsp;&nbsp; <strong>Total: ' + (dr+fl) + ' </strong></td></tr></tfoot>';
+
+
 		$('#file-table').html(tblhtml);
+
 		$('#file-table').tableSortable();
 		$('.bg_load').delay(1500).hide('slow');
 		$('.wrapper').delay(1500).hide('slow');
