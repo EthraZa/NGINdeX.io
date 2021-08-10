@@ -164,7 +164,7 @@
 
                 $('#idx-path').innerHTML = '<small>' +
                     pathname.split('/').reduce(function(a, v, i, o) {
-                        return a += ` / <a href="/javascript:getHref('${o.slice(1, i+1).join('/')}')">${v}</a> `;
+                        return a += ` / <a href="javascript:getHref(/'${o.slice(1, i+1).join('/')}')">${v}</a> `;
                     }); +
                 '</small>'
 
@@ -174,7 +174,7 @@
                     let entry = a[cc];
                         mtime = new Date(entry.mtime),
                         entry.mtime = `${mtime.toLocaleDateString()}  ${mtime.toLocaleTimeString()}`,
-                        url = `${pathname}/${entry.name}`;
+                        url = `${pathname}${entry.name}`;
 
                     if (entry.type == 'directory') {
                         ++dr;
@@ -191,7 +191,7 @@
                             <td><span class="material-icons" title="File">insert_drive_file</span><span style="display:none">${entry.type}</span></td>
                             <td><a download href="${url}">${entry.name}</a>
                                     <span style="float:right"><a download href="${url}"><span class="material-icons" title="Save">download</span></a>
-                                    <a href="${url}"><span class="material-icons" title="Open" target="_blank">open_in_browser</span></a></span>
+                                    <a href="${url}" target="_blank"><span class="material-icons" title="Open">open_in_browser</span></a></span>
                             </td>
                             <td>${entry.mtime}</td>
                             <td>${humanFileSize(entry.size, true, 2)}</td>
