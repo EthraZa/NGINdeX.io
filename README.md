@@ -1,7 +1,7 @@
 # [NGINdeX.io](#)
 [NGINdeX.io](https://github.com/EthraZa/NGINdeX.io) is [NGINX](https://www.nginx.com/) [autoindex](https://nginx.org/en/docs/http/ngx_http_autoindex_module.html) redux.
 
-A pretty but simple and memory efficient autoindex for Nginx without the fancy index module.
+A pretty but simple autoindex for Nginx without the fancy index module.
 It will read up the content from a NGINX folder and create a pretty HTML5 table to browse it
 with column sort and filter.
 

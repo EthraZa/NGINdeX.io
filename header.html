@@ -102,7 +102,9 @@
                 const tr = $$(c);
                 let cc = 0;
                 v = v.toLowerCase();
-                
+               
+		if (l && v && v.length < l) { return; }
+ 
                 while (cc < tr.length) {
                     let td = tr[cc].getElementsByTagName(e),
                         dpl = 'none';
@@ -164,7 +166,7 @@
 
                 $('#idx-path').innerHTML = '<small>' +
                     pathname.split('/').reduce(function(a, v, i, o) {
-                        return a += ` / <a href="javascript:getHref('/${o.slice(1, i+1).join('/')}')">${v}</a> `;
+                        return a += ` / <a href="#" onclick="window.open(getHref('/${o.slice(1, i+1).join('/')}'),'_self')">${v}</a> `;
                     }); +
                 '</small>'
 
@@ -180,7 +182,7 @@
                         ++dr;
                         tblHtm += `<tr>
                             <td><span class="material-icons" title="Folder">folder</span><span style="display:none">${entry.type}</span></td>
-                            <td><a href="javascript:getHref('${url}')">${entry.name}</a></td>
+                            <td><a href="#" onclick="window.open(getHref('${url}'),'_self')">${entry.name}</a></td>
                             <td>${entry.mtime}</td>
                             <td></td>
                         </tr>`;
@@ -234,10 +236,10 @@
             th:first-child{padding: unset;}
             td:first-child{width: 32px;}
             td:nth-child(n+3){width: 1%; white-space: nowrap;}
-            tr{transition: all 0.5s ease 0s;}
+            tr{transition: all 0.2s ease 0s;}
             tr:hover{box-shadow: 0px 5px 40px -10px rgba(0,0,0,0.5);}
             span.material-icons + span{vertical-align: middle; padding: 0 2em 0 1em;}
-            section{width: 100%; height: 100%; position: fixed; left: 0; right: 0; z-index: 1; background-size: cover; background-repeat: no-repeat; background-attachment: fixed; background-position: center; filter: blur(3px); opacity: 0.2}
+            section{width: 100%; height: 100%; position: fixed; left: 0; right: 0; z-index: 1; background-size: cover; background-repeat: no-repeat; background-attachment: fixed; background-position: center; filter: blur(3px); opacity: 0.3}
             article{z-index: 3;}
             #idx-filter{width: unset;}
             #idx-path{vertical-align: text-top;}
@@ -246,7 +248,7 @@
             .material-icons{vertical-align: middle;}
             .load {position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; background: #EEE;}
             .lds {display: inline-block; width: 80px; height: 80px; position: fixed; left: 50%; top: 50%;}
-            .lds:after {content: " "; display: block; width: 64px; height: 64px; margin: 8px; border-radius: 50%; border: 6px solid #ccc; border-color: #ccc transparent #ccc transparent; animation: lds-dual-ring 1.2s linear infinite;}
+            .lds:after {content: " "; display: block; width: 64px; height: 64px; margin: 8px; border-radius: 50%; border: 6px solid #ccc; border-color: #ccc transparent; animation: lds-dual-ring 1.2s linear infinite;}
             @keyframes lds {0% {transform: rotate(0deg);}100% {transform: rotate(360deg);}}
         </style>
         <link id="idx-theme" rel="stylesheet" href="" crossorigin="anonymous">
