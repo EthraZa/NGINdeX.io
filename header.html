@@ -1,122 +1,319 @@
-<!Doctype html>
-<!--Header-->
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta charset="utf-8"/> 
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="UTF-8"/> 
         <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <title>Index</title>
-        <script type="text/javascript">
-            var title = ('> ' + window.location.pathname); //Loads up when this part is loaded 
-            document.title = title;
-        </script>
-        <link rel="stylesheet" href="/autoindex/css/bootstrap.min.css"/>
-        <link rel="stylesheet" href="/autoindex/css/bootstrap-theme.min.css"/>
-        <link rel="stylesheet" href="/autoindex/css/file.css"/>
-        <style>
-            html {
-	            height: 100%;
-	            box-sizing: border-box;
-                padding-top: 80px;
+        <meta name="description" content="NGINdeX.io is NGINX autoindex redux.">
+        <title>NGINdeX.io</title>
+        <link rel="shortcut icon" href="https://fonts.gstatic.com/s/i/materialicons/drive_file_move/v17/24px.svg">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic"> -->
+        <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css" as="style" crossorigin="anonymous">
+        <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css" as="style" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css" crossorigin="anonymous">
+        <!-- <link rel="preload" href="https://cdn.jsdelivr.net/npm/picnic" as="style" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic"> -->
+        <!-- <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/min/1.5.0/entireframework.min.css" as="style" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/min/1.5.0/entireframework.min.css" crossorigin="anonymous"> -->
+        <!-- <link rel="preload" href="https://cdn.jsdelivr.net/npm/sscaffold-css@0.1.1/sscaffold.min.css" integrity="sha256-tNrNp6fPTVnhpywTjgNV4jCx6W9d1wuALpwVmAQEYcs=" as="style" crossorigin="anonymous"> 
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sscaffold-css@0.1.1/sscaffold.min.css" integrity="sha256-tNrNp6fPTVnhpywTjgNV4jCx6W9d1wuALpwVmAQEYcs=" crossorigin="anonymous"> -->
+        <link rel="stylesheet" media="bogus">
+        <script>
+            window.$ = document.querySelector.bind(document);
+            window.$$ = document.querySelectorAll.bind(document);
+            Node.prototype.on = window.on = function (name, fn) {
+                this.addEventListener(name, fn);
             }
-            body {
-                position: relative;
-                min-height: 100%;
-                margin: 0;
-                padding-bottom: 6rem;
+            NodeList.prototype.__proto__ = Array.prototype;
+            NodeList.prototype.on = NodeList.prototype.addEventListener = function (name, fn) {
+                this.forEach(function (elem, i) {
+                    elem.on(name, fn);
+                });
             }
-            #main-nav {
-                background-image: url(/autoindex/img/footer.jpg) !important;
-                background-repeat: repeat;
+
+            function getParent(path) {
+                let p = path.split('/');
+                p = p.slice(0, p.length -2);
+                return p.join('/') + '/';
+            }
+
+            /**
+             * Format bytes as human-readable text.
+             * @param bytes Number of bytes.
+             * @param si True to use metric (SI) units, aka powers of 1000. False to use binary (IEC), aka powers of 1024.
+             * @param dp Number of decimal places to display.
+             * @return Formatted string.
+             */
+            function humanFileSize(bytes, si=false, dp=1) {
+                const thresh = si ? 1000 : 1024;
+
+                if (Math.abs(bytes) < thresh) {
+                    return bytes + ' B';
+                }
+            
+                const units = si 
+                ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'] 
+                : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+                let u = -1;
+                const r = 10**dp;
+            
+                do {
+                    bytes /= thresh;
+                    ++u;
+                } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
+                
+                return bytes.toFixed(dp) + ' ' + units[u];
+            }
+
+            function setSortable(c = 'th') {
+                const getCellValue = function(tr, idx) {
+                    return tr.children[idx].innerText || tr.children[idx].textContent;
+                }
+
+                const comparer = function(idx, asc) { 
+                    return function(a, b) {
+                        return (function (v1, v2) {
+                            return v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
+                        })(getCellValue(asc ? a : b, idx), getCellValue(asc ? b : a, idx));
+                    }
+                }
+
+                $$(c).forEach(function(th) {
+                    th.addEventListener('click', (function(e) {
+                        let i = (e.target.tagName == 'SPAN'? e.target : e.target.querySelector('span'));
+                        const table = th.closest('table');
+                        const tbody = table.querySelector('tbody');
+                        
+                        if (table) {
+                            const is = table.querySelectorAll('th span');
+                            if (is) {
+                                is.forEach(s => s.style.transform = 'scaleY(1)');
+                                is.forEach(s => s.textContent = 'filter_list');
+                            }
+                            if (i) {
+                                i.textContent = 'sort';
+                                i.style.transform = this.asc? 'scaleY(-1)' : 'scaleY(1)';
+                            }
+                            Array.from(tbody.querySelectorAll('tr'))
+                                .sort(comparer(Array.from(th.parentNode.children).indexOf(th), this.asc = !this.asc))
+                                .forEach(tr => tbody.appendChild(tr));
+                        }}
+                    ))
+                });
+            }
+
+            function filterTable(v = '', l = 0, c = 'table tbody tr', e = 'td') {
+                const tr = $$(c);
+                let cc = 0;
+                v = v.toLowerCase();
+                
+                while (cc < tr.length) {
+                    let td = tr[cc].getElementsByTagName(e),
+                        dpl = 'none';
+                        ccc = 0;
+
+                    while (ccc < td.length) {
+                        let txt = (td[ccc].textContent || td[ccc].innerText).toLowerCase();
+                        if (txt.indexOf(v) > -1) {
+                            dpl = '';
+                        }
+                        ++ccc;
+                    }
+                    tr[cc].style.display = dpl;
+                    ++cc;
+                }
             }
             
-            #page {
-                margin: 0 auto;
-                padding: 5px;
-                width: 94%;
+            function getData(c = '#idx-json') {
+                const cdom = $(c);
+                if (cdom.textContent.indexOf('[') >= 0) {
+                    return JSON.parse(cdom.textContent);
+                }
             }
-            #file-table {
-                font-size:14px;
+
+            function setTheme(v = '') {
+                $('#idx-theme').href = v? `https://cdn.jsdelivr.net/npm/milligram-themes@0.0.2/src/${v}.min.css` : v;
             }
-            footer {
-                position: absolute;
-                left: 0;
-                bottom: 0;
-                right: 0;
-                background-color: #f2f2f2;
-                background-image: url(/autoindex/img/footer.jpg);
-                font-size: 18px;
-                text-align: center;
-                color:rgb(59, 59, 59);
-                height: 50px;
-                line-height: 50px;
-                border-top: solid thin #bfbfbf;
-                -webkit-box-shadow: inset 0px 1px 10px #b5b2b2;
+
+            function getHref(u = ''){
+                return u + window.location.search;
             }
-            .label > a { color:white; }
-            .label > a:hover {
-                color: #f0f0f0;
-                text-decoration: none;
+
+            function setData(a = [], c = 'table tbody', f = 'footer', s = '#idx-filter', t = '#idx-stheme') {
+                const pathname = window.location.pathname,
+                    prm = new URLSearchParams(window.location.search);
+
+                let tblHtm = '',
+                    cc = dr = fl = sz = 0;
+
+                
+                if (prm.has('b')) {
+                    $('section').style.backgroundImage = `url("${decodeURIComponent(prm.get('b'))}")`;
+                }
+
+                if (prm.has('t')) {
+                    setTheme($(t).value = prm.get('t'));
+                }
+
+                $(t).addEventListener('change', function(e) {
+                    setTheme(e.target.value);
+                    prm.delete('t');
+                    prm.append('t', e.target.value);
+                    history.replaceState('', '', `${window.location.pathname}?${prm.toString()}`);
+                });
+
+                $(s).addEventListener('keyup', function(e) { filterTable(e.target.value, 3); });
+                
+                setSortable();
+
+                $('#idx-path').innerHTML = '<small>' +
+                    pathname.split('/').reduce(function(a, v, i, o) {
+                        return a += ` / <a href="/${o.slice(1, i+1).join('/')}">${v}</a> `;
+                    }); +
+                '</small>'
+
+                $('.load').remove();
+
+                while (cc < a.length) {
+                    let entry = a[cc];
+                        mtime = new Date(entry.mtime),
+                        entry.mtime = `${mtime.toLocaleDateString()}  ${mtime.toLocaleTimeString()}`,
+                        url = `${pathname}/${entry.name}`;
+
+                    if (entry.type == 'directory') {
+                        ++dr;
+                        tblHtm += `<tr>
+                            <td><span class="material-icons" title="Folder">folder</span><span style="display:none">${entry.type}</span></td>
+                            <td><a href="javascript:getHref('${url}')">${entry.name}</a></td>
+                            <td>${entry.mtime}</td>
+                            <td></td>
+                        </tr>`;
+                    } else {
+                        ++fl;
+                        sz += entry.size;
+                        tblHtm += `<tr>
+                            <td><span class="material-icons" title="File">insert_drive_file</span><span style="display:none">${entry.type}</span></td>
+                            <td><a download href="${url}">${entry.name}</a>
+                                    <span style="float:right"><a download href="${url}"><span class="material-icons" title="Save">download</span></a>
+                                    <a href="${url}"><span class="material-icons" title="Open">open_in_browser</span></a></span>
+                            </td>
+                            <td>${entry.mtime}</td>
+                            <td>${humanFileSize(entry.size, true, 2)}</td>
+                        </tr>`;
+                    }
+
+                    ++cc;
+                }
+
+                $(c).innerHTML = tblHtm;
+                $(f).innerHTML = `<span class="material-icons">folder_open</span><span>${dr}</span>
+                    <span class="material-icons">description</span><span>${fl}</span>
+                    <span class="material-icons">account_tree</span><span>${(dr+fl)}<strong> : </strong> &nbsp;&nbsp;&nbsp;${humanFileSize(sz, true, 3)}</span>`;
             }
-            #json-output { display: none; }
+
+            function main() {
+                const jsn = getData();
+
+                if (jsn) {
+                    document.removeEventListener('DOMContentLoaded', main);
+                    setData(jsn);
+                } else if (window.location.pathname.endsWith('.html')) {
+                    alert('Is NGINX autoindexing?');
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', main);
+        </script>
+        <style>
+            html{height: 100%; margin: 0}
+            body{text-align: left; overflow: hidden; height: 100%; display: flex; flex-direction: column; flex-wrap: nowrap; flex-direction: column;}
+            header{flex-shrink: 0;}
+            header ul{border-bottom:solid 1px #ccc; margin: 7px; display: flex; align-items: stretch; justify-content: space-between;}
+            header li{display:inline; margin:0 20px; white-space: nowrap;}
+            main{overflow: auto scroll; flex-grow: 1; padding: 8px 10px; display: flex; justify-content: center; align-items: flex-start;}
+            footer{flex-shrink: 0; text-align: right; margin:0; border-top: solid 1px #ccc; z-index: 4;}
+            table{width: calc(100vw / 1.618);}
+            th{position: sticky; top: 0px; z-index: 2; white-space: nowrap; cursor: pointer;}
+            th span.material-icons{vertical-align: top; padding: 0 0 0 1em;}
+            th:first-child{padding: unset;}
+            td:first-child{width: 32px;}
+            td:nth-child(n+3){width: 1%; white-space: nowrap;}
+            tr{transition: all 0.5s ease 0s;}
+            tr:hover{box-shadow: 0px 5px 40px -10px rgba(0,0,0,0.5);}
+            span.material-icons + span{vertical-align: middle; padding: 0 2em 0 1em;}
+            section{width: 100%; height: 100%; position: fixed; left: 0; right: 0; z-index: 1; background-size: cover; background-repeat: no-repeat; background-attachment: fixed; background-position: center; filter: blur(3px); opacity: 0.2}
+            article{z-index: 3;}
+            #idx-filter{width: unset;}
+            #idx-path{vertical-align: text-top;}
+            #idx-json{display: none;}
+            .header{background-color: #fff;}
+            .material-icons{vertical-align: middle;}
+            .load {position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; background: #EEE;}
+            .lds {display: inline-block; width: 80px; height: 80px; position: fixed; left: 50%; top: 50%;}
+            .lds:after {content: " "; display: block; width: 64px; height: 64px; margin: 8px; border-radius: 50%; border: 6px solid #ccc; border-color: #ccc transparent #ccc transparent; animation: lds-dual-ring 1.2s linear infinite;}
+            @keyframes lds {0% {transform: rotate(0deg);}100% {transform: rotate(360deg);}}
         </style>
+        <link id="idx-theme" rel="stylesheet" href="">
     </head>
     <body>
-	<div class="bg_load"></div>
-	<div class="wrapper">
-	    <div class="inner">
-	        <span>L</span>
-	        <span>o</span>
-	        <span>a</span>
-	        <span>d</span>
-	        <span>i</span>
-	        <span>n</span>
-	        <span>g</span>
-	    </div>
-	</div>
-
-        <div id="page">
-            <nav class="navbar navbar-default navbar-fixed-top" id="main-nav">
-                <div class="navbar-header">
-                    <p class="navbar-text">
-                        <noscript>
-                            <span class="glyphicon glyphicon-exclamation-sign" style="color:red;"></span> JavaScript is not enabled! Please reload this page with it enabled.
-                        </noscript>
-                    </p>
-                    <div id="page-header" class="navbar-brand"></div>
-                </div>
-            </nav>
-            
-	<noscript>
-	</noscript>
-            
-	<table class="table table-bordered table-striped" id="file-table">
-		<thead>
-			<tr class="table-header">
-				<th>Name</th>
-				<th>Type</th>
-				<th data-table-sortable-type="string">Date</th>
-				<th>Size</th>
-			</tr>
-			<tr class="parent-dir">
-				<td id="parent-link" style="vertical-align: middle"></td>
-				<td colspan=3><input class="form-control" id="file-search" type="text" placeholder="Filter..."></td>
-			</tr>
-		</thead>
-		<tfoot>
-			<tr>
-				<td colspan="4" class="text-right"></td>
-			</tr>
-		</tfoot>
-		<tbody>
-		</tbody>
-            </table>
+        <div class="load">
+            <div class="lds"></div>
         </div>
-
-	<button type="button" class="btn btn-default btn-floating btn-lg" id="btn-back-to-top">
-		<span class="glyphicon glyphicon-circle-arrow-up" aria-hidden="true"></span>
-	</button>
-
-        <!--nginx json output, continues to footer.html-->
-        <div id="json-output">
+        <header>
+            <ul>
+                <li>
+                    <span class="material-icons" style="font-size: 36px;">drive_file_move</span>
+                    <span id="idx-path"></span>
+                </li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li>
+                    <span class="material-icons">filter_alt</span>
+                    <input id="idx-filter" type="text" placeholder="Filter">
+                </li>
+                <li>
+                    <span class="material-icons">palette</span>
+                    <select id="idx-stheme" style="width:auto;">
+                        <option value="aqua">Aqua</option>
+                        <option value="black">Black</option>
+                        <option value="blue">Blue</option>
+                        <option value="dark2">Dark</option>
+                        <option value="" selected>Default</option>
+                        <option value="fuchsia">Fuchsia</option>
+                        <option value="gray">Gray</option>
+                        <option value="green">Green</option>
+                        <option value="lime">Lime</option>
+                        <option value="maroon">Maroon</option>
+                        <option value="navy">Navy</option>
+                        <option value="olive">Olive</option>
+                        <option value="orange">Orange</option>
+                        <option value="purple">Purple</option>
+                        <option value="red">Red</option>
+                        <option value="silver">Silver</option>
+                        <option value="teal">Teal</option>
+                        <option value="yellow">Yellow</option>
+                    </select>
+                </li>
+            </ul>
+        </header>
+        <main>
+            <section></section>
+            <article>
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="header"><span class="material-icons">filter_list</span></th>
+                            <th class="header">Name<span class="material-icons">filter_list</span></th>
+                            <th class="header">Date<span class="material-icons">filter_list</span></th>
+                            <th class="header">Size<span class="material-icons">filter_list</span></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </article>
+        </main>
+        <footer>
+            <div id="idx-json">
