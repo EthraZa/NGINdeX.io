@@ -164,7 +164,7 @@
 
                 $('#idx-path').innerHTML = '<small>' +
                     pathname.split('/').reduce(function(a, v, i, o) {
-                        return a += ` / <a href="javascript:getHref('${o.slice(1, i+1).join('/')}')">${v}</a> `;
+                        return a += ` / <a href="javascript:getHref('/${o.slice(1, i+1).join('/')}')">${v}</a> `;
                     }); +
                 '</small>'
 
