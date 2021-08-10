@@ -47,7 +47,7 @@ It is tested and works with the followings CSS libraries:
 ---
 | <img src="https://raw.githubusercontent.com/EthraZa/NGINdeX.io/main/img/min.png" title="Min" width="320"> |
 ---
-<img src="https://raw.githubusercontent.com/EthraZa/NGINdeX.io/main/img/picnic.png" title="Picnic" width="320"> |
+| <img src="https://raw.githubusercontent.com/EthraZa/NGINdeX.io/main/img/picnic.png" title="Picnic" width="320"> |
 ---
 | <img src="https://raw.githubusercontent.com/EthraZa/NGINdeX.io/main/img/normalize.png" title="Normalize" width="320"> |
 ---
