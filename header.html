@@ -137,14 +137,12 @@
                 return u + window.location.search;
             }
 
-            function setData(a = [], c = 'table tbody', f = 'footer', s = '#idx-filter', t = '#idx-stheme') {
+            function setEnv(s = '#idx-filter', t = '#idx-stheme') {
                 const pathname = window.location.pathname,
                     prm = new URLSearchParams(window.location.search);
 
-                let tblHtm = '',
-                    cc = dr = fl = sz = 0;
-
-                
+                document.removeEventListener('DOMContentLoaded', main);
+                    
                 if (prm.has('b')) {
                     $('section').style.backgroundImage = `url("${decodeURIComponent(prm.get('b'))}")`;
                 }
@@ -169,17 +167,20 @@
                         return a += ` / <a href="#" onclick="window.open(getHref('/${o.slice(1, i+1).join('/')}'),'_self')">${v}</a> `;
                     }); +
                 '</small>'
+            }
 
-                $('.load').remove();
-
-                while (cc < a.length) {
-                    let entry = a[cc];
+            function setData(a = [], n = [0,0,0,0], p = 3000, m = 1, c = 'table tbody', f = 'footer') {
+                const pathname = window.location.pathname;
+                let tblHtm = '';
+                
+                while (n[0] < a.length) {
+                    let entry = a[n[0]];
                         mtime = new Date(entry.mtime),
                         entry.mtime = `${mtime.toLocaleDateString()}  ${mtime.toLocaleTimeString()}`,
                         url = `${pathname}${entry.name}`;
 
                     if (entry.type == 'directory') {
-                        ++dr;
+                        ++n[1];
                         tblHtm += `<tr>
                             <td><span class="material-icons" title="Folder">folder</span><span style="display:none">${entry.type}</span></td>
                             <td><a href="#" onclick="window.open(getHref('${url}'),'_self')">${entry.name}</a></td>
@@ -187,8 +188,8 @@
                             <td></td>
                         </tr>`;
                     } else {
-                        ++fl;
-                        sz += entry.size;
+                        ++n[2];
+                        n[3] += entry.size;
                         tblHtm += `<tr>
                             <td><span class="material-icons" title="File">insert_drive_file</span><span style="display:none">${entry.type}</span></td>
                             <td><a download="${entry.name}" href="${url}">${entry.name}</a>
@@ -200,20 +201,35 @@
                         </tr>`;
                     }
 
-                    ++cc;
+                    if ((a.length < p && n[0] == a.length-1) || (a.length >= p && n[0] == p)) {
+                        $('.load').remove();
+                    }
+                    
+                    if (n[0] && n[0] != a.length-1 && n[0]%p === 0) {
+                        ++n[0];
+                        $(c).innerHTML += tblHtm;
+                        setTimeout(function() {
+                            setData(a,n);
+                        }, m);
+                        return;
+                    }
+
+                    ++n[0];
                 }
 
-                $(c).innerHTML = tblHtm;
-                $(f).innerHTML = `<span class="material-icons">folder_open</span><span>${dr}</span>
-                    <span class="material-icons">description</span><span>${fl}</span>
-                    <span class="material-icons">account_tree</span><span>${(dr+fl)}<strong> : </strong> &nbsp;&nbsp;&nbsp;${humanFileSize(sz, true, 3)}</span>`;
+                $(c).innerHTML += tblHtm;
+                if (n[0] == a.length) {
+                    $(f).innerHTML = `<span class="material-icons">folder_open</span><span>${n[1]}</span>
+                        <span class="material-icons">description</span><span>${n[2]}</span>
+                        <span class="material-icons">account_tree</span><span>${(n[1]+n[2])}<strong> : </strong> &nbsp;&nbsp;&nbsp;${humanFileSize(n[3], true, 3)}</span>`;
+                    a = null;
+                }
             }
 
             function main() {
                 const jsn = getData();
-
-                if (jsn) {
-                    document.removeEventListener('DOMContentLoaded', main);
+                setEnv();
+                if (jsn) {    
                     setData(jsn);
                 } else if (window.location.pathname.endsWith('.html')) {
                     alert('Is NGINX autoindexing?');
@@ -246,9 +262,9 @@
             #idx-json{display: none;}
             .header{background-color: #fff;}
             .material-icons{vertical-align: middle;}
-            .load {position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; background: #EEE;}
-            .lds {display: inline-block; width: 80px; height: 80px; position: fixed; left: 50%; top: 50%;}
-            .lds:after {content: " "; display: block; width: 64px; height: 64px; margin: 8px; border-radius: 50%; border: 6px solid #ccc; border-color: #ccc transparent; animation: lds-dual-ring 1.2s linear infinite;}
+            .load {position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; background: #EEE; z-index: 9999}
+            .lds {display: inline-block; width: 80px; height: 80px; position: fixed; left: 47.5%; top: 47.5%;}
+            .lds:after {content: " "; display: block; width: 64px; height: 64px; margin: 8px; border-radius: 50%; border: 6px solid #ccc; border-color: #ccc transparent; animation: lds 1.2s linear infinite;}
             @keyframes lds {0% {transform: rotate(0deg);}100% {transform: rotate(360deg);}}
         </style>
         <link id="idx-theme" rel="stylesheet" href="" crossorigin="anonymous">
