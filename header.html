@@ -169,7 +169,7 @@
                 '</small>'
             }
 
-            function setData(a = [], n = [0,0,0,0], p = 3000, m = 1, c = 'table tbody', f = 'footer') {
+            function setData(a = [], n = [0,0,0,0], p = 15000, m = 1, c = 'table tbody', f = 'footer') {
                 const pathname = window.location.pathname;
                 let tblHtm = '';
                 
@@ -206,14 +206,16 @@
                     }
                     
                     if (n[0] && n[0] != a.length-1 && n[0]%p === 0) {
-                        ++n[0];
                         $(c).innerHTML += tblHtm;
+                        if (a.length >= p && n[0] == p) { $('.load').remove(); }
+                        ++n[0];
                         setTimeout(function() {
                             setData(a,n);
                         }, m);
                         return;
                     }
 
+                    if (a.length < p && n[0] == a.length) { $('.load').remove(); }
                     ++n[0];
                 }
 
