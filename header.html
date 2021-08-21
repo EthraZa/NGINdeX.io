@@ -200,10 +200,6 @@
                             <td>${humanFileSize(entry.size, true, 2)}</td>
                         </tr>`;
                     }
-
-                    if ((a.length < p && n[0] == a.length-1) || (a.length >= p && n[0] == p)) {
-                        $('.load').remove();
-                    }
                     
                     if (n[0] && n[0] != a.length-1 && n[0]%p === 0) {
                         $(c).innerHTML += tblHtm;
