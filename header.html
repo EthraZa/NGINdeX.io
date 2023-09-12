@@ -142,7 +142,9 @@
                     prm = new URLSearchParams(window.location.search);
 
                 document.removeEventListener('DOMContentLoaded', main);
-                    
+                
+                window.language = prm.has('l') || 'sv-SE';
+
                 if (prm.has('b')) {
                     $('section').style.backgroundImage = `url("${decodeURIComponent(prm.get('b'))}")`;
                 }
@@ -176,7 +178,7 @@
                 while (n[0] < a.length) {
                     let entry = a[n[0]];
                         mtime = new Date(entry.mtime),
-                        entry.mtime = `${mtime.toLocaleDateString()}  ${mtime.toLocaleTimeString()}`,
+                        entry.mtime = mtime.toLocaleString(window.language),
                         url = `${pathname}${entry.name}`;
 
                     if (entry.type == 'directory') {

@@ -24,6 +24,11 @@ It has no configs, except a couple of params that can be passed to the URL.
 
  ie: https://domain.tld/folder?b=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1569235186275-626cb53b83ce%3Fixlib%3Drb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1352&q=80&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1352&q=80
 
+**DateTime Format**
+- l = [Language_Locale](https://www.w3schools.com/jsref/jsref_tolocalestring.asp) (Defaults to "sv-SE" = "YYYY-MM-DD HH:MM:SS" so it gets right ordered)
+
+ ie: https://domain.tld/folder?l=en-US
+
 # CSS libraries and themes
 It is tested and works with the followings CSS libraries:
 - [Default style sheet for HTML 5](https://html.spec.whatwg.org/multipage/rendering.html#phrasing-content-3) - No CSS library at all
