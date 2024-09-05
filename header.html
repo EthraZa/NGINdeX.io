@@ -1,331 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-	    <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta charset="UTF-8"/> 
         <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
         <meta name="description" content="NGINdeX.io is NGINX autoindex redux.">
         <title>NGINdeX.io</title>
-        <link rel="shortcut icon" href="https://fonts.gstatic.com/s/i/materialicons/drive_file_move/v17/24px.svg" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" crossorigin="anonymous">
-        <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic" crossorigin="anonymous"> -->
-        <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css" as="style" crossorigin="anonymous">
-        <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css" as="style" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css" crossorigin="anonymous">
-        <!-- <link rel="preload" href="https://cdn.jsdelivr.net/npm/picnic" as="style" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic" crossorigin="anonymous"> -->
-        <!-- <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/min/1.5.0/entireframework.min.css" as="style" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/min/1.5.0/entireframework.min.css" crossorigin="anonymous"> -->
-        <!-- <link rel="preload" href="https://cdn.jsdelivr.net/npm/sscaffold-css@0.1.1/sscaffold.min.css" integrity="sha256-tNrNp6fPTVnhpywTjgNV4jCx6W9d1wuALpwVmAQEYcs=" as="style" crossorigin="anonymous"> 
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sscaffold-css@0.1.1/sscaffold.min.css" integrity="sha256-tNrNp6fPTVnhpywTjgNV4jCx6W9d1wuALpwVmAQEYcs=" crossorigin="anonymous"> -->
-        <link rel="stylesheet" media="bogus">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.min.css" crossorigin="anonymous">
         <script>
-            window.$ = document.querySelector.bind(document);
-            window.$$ = document.querySelectorAll.bind(document);
-            Node.prototype.on = window.on = function (name, fn) {
-                this.addEventListener(name, fn);
-            }
-            NodeList.prototype.__proto__ = Array.prototype;
-            NodeList.prototype.on = NodeList.prototype.addEventListener = function (name, fn) {
-                this.forEach(function (elem, i) {
-                    elem.on(name, fn);
-                });
-            }
-
-            /**
-             * Format bytes as human-readable text.
-             * @param bytes Number of bytes.
-             * @param si True to use metric (SI) units, aka powers of 1000. False to use binary (IEC), aka powers of 1024.
-             * @param dp Number of decimal places to display.
-             * @return Formatted string.
-             */
-            function humanFileSize(bytes, si=false, dp=1) {
-                const thresh = si ? 1000 : 1024;
-
-                if (Math.abs(bytes) < thresh) {
-                    return bytes + ' B';
-                }
-            
-                const units = si 
-                ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'] 
-                : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
-                let u = -1;
-                const r = 10**dp;
-            
-                do {
-                    bytes /= thresh;
-                    ++u;
-                } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
-                
-                return bytes.toFixed(dp) + ' ' + units[u];
-            }
-
-            function setSortable(c = 'th') {
-                const getCellValue = function(tr, idx) {
-                    return tr.children[idx].innerText || tr.children[idx].textContent;
-                }
-
-                const comparer = function(idx, asc) { 
-                    return function(a, b) {
-                        return (function (v1, v2) {
-                            return v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
-                        })(getCellValue(asc ? a : b, idx), getCellValue(asc ? b : a, idx));
-                    }
-                }
-
-                $$(c).forEach(function(th) {
-                    th.addEventListener('click', (function(e) {
-                        let i = (e.target.tagName == 'SPAN'? e.target : e.target.querySelector('span'));
-                        const table = th.closest('table');
-                        const tbody = table.querySelector('tbody');
-                        
-                        if (table) {
-                            const is = table.querySelectorAll('th span');
-                            if (is) {
-                                is.forEach(s => s.style.transform = 'scaleY(1)');
-                                is.forEach(s => s.textContent = 'filter_list');
-                            }
-                            if (i) {
-                                i.textContent = 'sort';
-                                i.style.transform = this.asc? 'scaleY(-1)' : 'scaleY(1)';
-                            }
-                            Array.from(tbody.querySelectorAll('tr'))
-                                .sort(comparer(Array.from(th.parentNode.children).indexOf(th), this.asc = !this.asc))
-                                .forEach(tr => tbody.appendChild(tr));
-                        }}
-                    ))
-                });
-            }
-
-            function filterTable(v = '', l = 0, c = 'table tbody tr', e = 'td') {
-                const tr = $$(c);
-                let cc = 0;
-                v = v.toLowerCase();
-               
-		if (l && v && v.length < l) { return; }
- 
-                while (cc < tr.length) {
-                    let td = tr[cc].getElementsByTagName(e),
-                        dpl = 'none';
-                        ccc = 0;
-
-                    while (ccc < td.length) {
-                        let txt = (td[ccc].textContent || td[ccc].innerText).toLowerCase();
-                        if (txt.indexOf(v) > -1) {
-                            dpl = '';
-                        }
-                        ++ccc;
-                    }
-                    tr[cc].style.display = dpl;
-                    ++cc;
-                }
-            }
-            
             function getData(c = '#idx-json') {
-                const cdom = $(c);
+                const cdom = document.querySelector(c);
                 if (cdom.textContent.indexOf('[') >= 0) {
                     return JSON.parse(cdom.textContent);
                 }
             }
 
-            function setTheme(v = '') {
-                $('#idx-theme').href = v? `https://cdn.jsdelivr.net/npm/milligram-themes@0.0.2/src/${v}.min.css` : v;
-            }
-
-            function getHref(u = ''){
-                return u + window.location.search;
-            }
-
-            function setEnv(s = '#idx-filter', t = '#idx-stheme') {
-                const pathname = window.location.pathname,
-                    prm = new URLSearchParams(window.location.search);
-
-                document.removeEventListener('DOMContentLoaded', main);
-                
-                window.language = prm.has('l') || 'sv-SE';
-
-                if (prm.has('b')) {
-                    $('section').style.backgroundImage = `url("${decodeURIComponent(prm.get('b'))}")`;
+            function humanFileSize(bytes, si=true, dp=1) {
+                const thresh = si ? 1000 : 1024;
+                if (Math.abs(bytes) < thresh) {
+                    return bytes + ' B';
                 }
-
-                if (prm.has('t')) {
-                    setTheme($(t).value = prm.get('t'));
-                }
-
-                $(t).addEventListener('change', function(e) {
-                    setTheme(e.target.value);
-                    prm.delete('t');
-                    prm.append('t', e.target.value);
-                    history.replaceState('', '', `${window.location.pathname}?${prm.toString()}`);
-                });
-
-                $(s).addEventListener('keyup', function(e) { filterTable(e.target.value, 3); });
-                
-                setSortable();
-
-                $('#idx-path').innerHTML = '<small>' +
-                    pathname.split('/').reduce(function(a, v, i, o) {
-                        return a += ` / <a href="#" onclick="window.open(getHref('/${o.slice(1, i+1).join('/')}'),'_self')">${v}</a> `;
-                    }); +
-                '</small>'
+                const units = si 
+                    ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'] 
+                    : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+                let u = -1;
+                const r = 10**dp;
+                do {
+                    bytes /= thresh;
+                    ++u;
+                } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
+                return bytes.toFixed(dp) + ' ' + units[u];
             }
 
-            function setData(a = [], n = [0,0,0,0], p = 15000, m = 1, c = 'table tbody', f = 'footer') {
+            function setData(a = [], c = 'table tbody') {
+                const tbody = document.querySelector(c);
                 const pathname = window.location.pathname;
-                let tblHtm = '';
                 
-                while (n[0] < a.length) {
-                    let entry = a[n[0]];
-                        mtime = new Date(entry.mtime),
-                        entry.mtime = mtime.toLocaleString(window.language),
-                        url = `${pathname}${entry.name}`;
-
-                    if (entry.type == 'directory') {
-                        ++n[1];
-                        tblHtm += `<tr>
-                            <td><span class="material-icons" title="Folder">folder</span><span style="display:none">${entry.type}</span></td>
-                            <td><a href="#" onclick="window.open(getHref('${url}'),'_self')">${entry.name}</a></td>
-                            <td>${entry.mtime}</td>
-                            <td></td>
-                        </tr>`;
-                    } else {
-                        ++n[2];
-                        n[3] += entry.size;
-                        tblHtm += `<tr>
-                            <td><span class="material-icons" title="File">insert_drive_file</span><span style="display:none">${entry.type}</span></td>
-                            <td><a download="${entry.name}" href="${url}">${entry.name}</a>
-                                    <span style="float:right"><a download="${entry.name}" href="${url}"><span class="material-icons" title="Save">download</span></a>
-                                    <a href="${url}" target="_blank"><span class="material-icons" title="Open">open_in_browser</span></a></span>
-                            </td>
-                            <td>${entry.mtime}</td>
-                            <td>${humanFileSize(entry.size, true, 2)}</td>
-                        </tr>`;
-                    }
-                    
-                    if (n[0] && n[0] != a.length-1 && n[0]%p === 0) {
-                        $(c).innerHTML += tblHtm;
-                        if (a.length >= p && n[0] == p) { $('.load').remove(); }
-                        ++n[0];
-                        setTimeout(function() {
-                            setData(a,n);
-                        }, m);
+                tbody.innerHTML = ''; // Clear existing content
+                
+                a.forEach(entry => {
+                    // Пропускаем файлы и директории с именем "autoindex"
+                    if (entry.name.toLowerCase() === 'autoindex') {
                         return;
                     }
 
-                    ++n[0];
-                    if (a.length < p && n[0] == a.length) { $('.load').remove(); }
-                }
+                    const tr = document.createElement('tr');
+                    const typeIcon = entry.type === 'directory' ? 'folder' : 'insert_drive_file';
+                    const size = entry.type === 'directory' ? '' : humanFileSize(entry.size, true, 2);
+                    const url = `${pathname}${entry.name}`;
+                    const date = new Date(entry.mtime);
+                    
+                    tr.innerHTML = `
+                        <td><span class="material-icons" title="${entry.type}">${typeIcon}</span></td>
+                        <td><a href="${url}">${entry.name}</a></td>
+                        <td data-sort="${date.getTime()}">${date.toLocaleString()}</td>
+                        <td data-sort="${entry.size || 0}">${size}</td>
+                    `;
+                    
+                    tbody.appendChild(tr);
+                });
+            }
 
-                $(c).innerHTML += tblHtm;
-                if (n[0] == a.length) {
-                    $(f).innerHTML = `<span class="material-icons">folder_open</span><span>${n[1]}</span>
-                        <span class="material-icons">description</span><span>${n[2]}</span>
-                        <span class="material-icons">account_tree</span><span>${(n[1]+n[2])}<strong> : </strong> &nbsp;&nbsp;&nbsp;${humanFileSize(n[3], true, 3)}</span>`;
-                    a = null;
-                }
+            function setSortable(c = 'th') {
+                const getCellValue = (tr, idx) => {
+                    const dataSort = tr.children[idx].getAttribute('data-sort');
+                    return dataSort !== null ? dataSort : tr.children[idx].innerText;
+                };
+
+                const comparer = (idx, asc) => (a, b) => {
+                    const v1 = getCellValue(asc ? a : b, idx);
+                    const v2 = getCellValue(asc ? b : a, idx);
+                    return v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) 
+                        ? v1 - v2 
+                        : v1.toString().localeCompare(v2);
+                };
+
+                document.querySelectorAll(c).forEach(th => th.addEventListener('click', (() => {
+                    const table = th.closest('table');
+                    const tbody = table.querySelector('tbody');
+                    const thIndex = Array.from(th.parentNode.children).indexOf(th);
+                    
+                    const iconSpan = th.querySelector('span.material-icons');
+                    if (iconSpan) {
+                        iconSpan.textContent = this.asc ? 'arrow_upward' : 'arrow_downward';
+                    }
+
+                    Array.from(tbody.querySelectorAll('tr'))
+                        .sort(comparer(thIndex, this.asc = !this.asc))
+                        .forEach(tr => tbody.appendChild(tr));
+                })));
             }
 
             function main() {
                 const jsn = getData();
-                setEnv();
                 if (jsn) {    
                     setData(jsn);
+                    setSortable();
                 } else if (window.location.pathname.endsWith('.html')) {
-                    alert('Is NGINX autoindexing?');
+                    console.error('Is NGINX autoindexing?');
                 }
             }
 
             document.addEventListener('DOMContentLoaded', main);
         </script>
         <style>
-            html{height: 100%; margin: 0}
-            body{text-align: left; overflow: hidden; height: 100%; display: flex; flex-direction: column; flex-wrap: nowrap; flex-direction: column;}
-            header{flex-shrink: 0;}
-            header ul{border-bottom:solid 1px #ccc; margin: 7px; display: flex; align-items: stretch; justify-content: space-between;}
-            header li{display:inline; margin:0 20px; white-space: nowrap;}
-            main{overflow: auto scroll; flex-grow: 1; padding: 8px 10px; display: flex; justify-content: center; align-items: flex-start;}
-            footer{flex-shrink: 0; text-align: right; margin:0; border-top: solid 1px #ccc; z-index: 4;}
-            table{width: calc(100vw / 1.618);}
-            th{position: sticky; top: 0px; z-index: 2; white-space: nowrap; cursor: pointer;}
-            th span.material-icons{vertical-align: top; padding: 0 0 0 1em;}
-            th:first-child{padding: unset;}
-            td:first-child{width: 32px;}
-            td:nth-child(n+3){width: 1%; white-space: nowrap;}
-            tr{transition: all 0.2s ease 0s;}
-            tr:hover{box-shadow: 0px 5px 40px -10px rgba(0,0,0,0.5);}
-            span.material-icons + span{vertical-align: middle; padding: 0 2em 0 1em;}
-            section{width: 100%; height: 100%; position: fixed; left: 0; right: 0; z-index: 1; background-size: cover; background-repeat: no-repeat; background-attachment: fixed; background-position: center; filter: blur(3px); opacity: 0.13}
-            article{z-index: 3;}
-            #idx-filter{width: unset;}
-            #idx-path{vertical-align: text-top;}
-            #idx-json{display: none;}
-            .header{background-color: #fff;}
-            .material-icons{vertical-align: middle;}
-            .load {position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; background: #EEE; z-index: 9999}
-            .lds {display: inline-block; width: 80px; height: 80px; position: fixed; left: 47.5%; top: 47.5%;}
-            .lds:after {content: " "; display: block; width: 64px; height: 64px; margin: 8px; border-radius: 50%; border: 6px solid #ccc; border-color: #ccc transparent; animation: lds 1.2s linear infinite;}
-            @keyframes lds {0% {transform: rotate(0deg);}100% {transform: rotate(360deg);}}
+            body { padding: 20px; }
+            table { width: 100%; }
+            th { cursor: pointer; }
+            .material-icons { vertical-align: middle; }
+            #idx-json { display: none; }
         </style>
-        <link id="idx-theme" rel="stylesheet" href="" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" crossorigin="anonymous">
     </head>
     <body>
-        <div class="load">
-            <div class="lds"></div>
-        </div>
         <header>
-            <ul>
-                <li>
-                    <span class="material-icons" style="font-size: 36px;">drive_file_move</span>
-                    <span id="idx-path"></span>
-                </li>
-                <li></li>
-                <li></li>
-                <li></li>
-                <li>
-                    <span class="material-icons">filter_alt</span>
-                    <input id="idx-filter" type="text" placeholder="Filter">
-                </li>
-                <li>
-                    <span class="material-icons">palette</span>
-                    <select id="idx-stheme" style="width:auto;">
-                        <option value="aqua">Aqua</option>
-                        <option value="black">Black</option>
-                        <option value="blue">Blue</option>
-                        <option value="dark2">Dark</option>
-                        <option value="" selected>Default</option>
-                        <option value="fuchsia">Fuchsia</option>
-                        <option value="gray">Gray</option>
-                        <option value="green">Green</option>
-                        <option value="lime">Lime</option>
-                        <option value="maroon">Maroon</option>
-                        <option value="navy">Navy</option>
-                        <option value="olive">Olive</option>
-                        <option value="orange">Orange</option>
-                        <option value="purple">Purple</option>
-                        <option value="red">Red</option>
-                        <option value="silver">Silver</option>
-                        <option value="teal">Teal</option>
-                        <option value="yellow">Yellow</option>
-                    </select>
-                </li>
-            </ul>
+            <h1>NGINdeX.io</h1>
         </header>
         <main>
-            <section></section>
-            <article>
-                <table>
-                    <thead>
-                        <tr>
-                            <th class="header"><span class="material-icons">filter_list</span></th>
-                            <th class="header">Name<span class="material-icons">filter_list</span></th>
-                            <th class="header">Date<span class="material-icons">filter_list</span></th>
-                            <th class="header">Size<span class="material-icons">filter_list</span></th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </article>
+            <table>
+                <thead>
+                    <tr>
+                        <th class="header"><span class="material-icons">filter_list</span></th>
+                        <th class="header">Name<span class="material-icons">filter_list</span></th>
+                        <th class="header">Date<span class="material-icons">filter_list</span></th>
+                        <th class="header">Size<span class="material-icons">filter_list</span></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </main>
         <footer>
             <div id="idx-json">
