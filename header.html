@@ -237,6 +237,18 @@
             }
 
             document.addEventListener('DOMContentLoaded', main);
+
+            function goUp() {
+              const urlParts = window.location.pathname.split('/');
+              if (urlParts.length == 0) {
+                return
+              }
+              if (urlParts[urlParts.length - 1] == "") {
+                urlParts.pop();
+              }
+              urlParts.pop();
+              window.open(urlParts.join('/') + '/', '_self');
+            }
         </script>
         <style>
             html{height: 100%; margin: 0}
@@ -260,12 +272,14 @@
             #idx-filter{width: unset;}
             #idx-path{vertical-align: text-top;}
             #idx-json{display: none;}
+            #idx-arrow-up { cursor: pointer; padding-top: 0.15em; margin-left: -1em; }
             .header{background-color: #fff;}
             .material-icons{vertical-align: middle;}
             .load {position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; background: #EEE; z-index: 9999}
             .lds {display: inline-block; width: 80px; height: 80px; position: fixed; left: 47.5%; top: 47.5%;}
             .lds:after {content: " "; display: block; width: 64px; height: 64px; margin: 8px; border-radius: 50%; border: 6px solid #ccc; border-color: #ccc transparent; animation: lds 1.2s linear infinite;}
             @keyframes lds {0% {transform: rotate(0deg);}100% {transform: rotate(360deg);}}
+            .material-icons { user-select: none; }
         </style>
         <link id="idx-theme" rel="stylesheet" href="" crossorigin="anonymous">
     </head>
@@ -278,6 +292,7 @@
                 <li>
                     <span class="material-icons" style="font-size: 36px;">drive_file_move</span>
                     <span id="idx-path"></span>
+                    <span class="material-icons" id="idx-arrow-up" onclick="goUp()">arrow_upward</span>
                 </li>
                 <li></li>
                 <li></li>
