@@ -5,6 +5,8 @@
         <meta charset="UTF-8"/> 
         <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
         <meta name="description" content="NGINdeX.io is NGINX autoindex redux.">
+        <meta name="author" content="NGINdeX.io Team"/>
+        <meta name="keywords" content="NGINdeX.io, NGINX, autoindex, nginx autoindex, nginx index"/>
         <title>NGINdeX.io</title>
         <link rel="shortcut icon" href="https://fonts.gstatic.com/s/i/materialicons/drive_file_move/v17/24px.svg" crossorigin="anonymous">
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" crossorigin="anonymous">
@@ -133,7 +135,7 @@
                 $('#idx-theme').href = v? `https://cdn.jsdelivr.net/npm/milligram-themes@0.0.2/src/${v}.min.css` : v;
             }
 
-            function getHref(u = ''){
+            function getHref(u = '') {
                 return u + window.location.search;
             }
 
@@ -167,7 +169,8 @@
                 $('#idx-path').innerHTML = '<small>' +
                     pathname.split('/').reduce(function(a, v, i, o) {
                         return a += ` / <a href="#" onclick="window.open(getHref('/${o.slice(1, i+1).join('/')}'),'_self')">${v}</a> `;
-                    }); +
+                    }) +
+                    `<a title="Back" href="#" onclick="window.open(getHref('${pathname.substring(0, pathname.slice(0,-1).lastIndexOf('/'))}'),'_self')"><span class="material-icons">arrow_back_ios_new</span></a>` +
                 '</small>'
             }
 
@@ -178,14 +181,15 @@
                 while (n[0] < a.length) {
                     let entry = a[n[0]];
                         mtime = new Date(entry.mtime),
-                        entry.mtime = mtime.toLocaleString(window.language),
+                        entry.mtime = mtime.toLocaleString(window.language),  //`${mtime.toLocaleDateString()}  ${mtime.toLocaleTimeString()}`,
+                        entry.ext = entry.name.substr(entry.name.lastIndexOf('.')+1).toUpperCase(),
                         url = `${pathname}${entry.name}`;
 
                     if (entry.type == 'directory') {
                         ++n[1];
                         tblHtm += `<tr>
-                            <td><span class="material-icons" title="Folder">folder</span><span style="display:none">${entry.type}</span></td>
-                            <td><a href="#" onclick="window.open(getHref('${url}'),'_self')">${entry.name}</a></td>
+                            <td><span class="material-icons" title="Folder">folder</span><span class="dn">${entry.type}</span></td>
+                            <td><div title="...${entry.name.substr(-10)}"><a href="#" onclick="window.open(getHref('${url}'),'_self')">${entry.name}</a></div></td>
                             <td>${entry.mtime}</td>
                             <td></td>
                         </tr>`;
@@ -193,10 +197,10 @@
                         ++n[2];
                         n[3] += entry.size;
                         tblHtm += `<tr>
-                            <td><span class="material-icons" title="File">insert_drive_file</span><span style="display:none">${entry.type}</span></td>
-                            <td><a download="${entry.name}" href="${url}">${entry.name}</a>
-                                    <span style="float:right"><a download="${entry.name}" href="${url}"><span class="material-icons" title="Save">download</span></a>
-                                    <a href="${url}" target="_blank"><span class="material-icons" title="Open">open_in_browser</span></a></span>
+                            <td><span class="material-icons" title="${entry.ext} File">insert_drive_file</span><span class="dn">${entry.type}</span></td>
+                            <td><div title="...${entry.name.substr(-10)}"><a download="${entry.name}" href="${url}">${entry.name}</a></div>
+                                    <span class="fr"><a download="${entry.name}" href="${url}"><span class="material-icons" title="Save ${entry.ext}">download</span></a>
+                                    <a href="${url}" target="_blank"><span class="material-icons" title="Open ${entry.ext}">open_in_browser</span></a></span>
                             </td>
                             <td>${entry.mtime}</td>
                             <td>${humanFileSize(entry.size, true, 2)}</td>
@@ -236,15 +240,19 @@
                 }
             }
 
+            document.addEventListener('wheel', function (e) {
+                document.querySelector('main').scrollTop += e.deltaY;
+                e.preventDefault();
+            }, { passive: false });
+
             document.addEventListener('DOMContentLoaded', main);
         </script>
         <style>
-            html{height: 100%; margin: 0}
-            body{text-align: left; overflow: hidden; height: 100%; display: flex; flex-direction: column; flex-wrap: nowrap; flex-direction: column;}
+            html, body{text-align: left; overflow: hidden; height: 100%; margin: 0; display: flex; flex-direction: column; flex-wrap: nowrap; flex-direction: column;}
             header{flex-shrink: 0;}
             header ul{border-bottom:solid 1px #ccc; margin: 7px; display: flex; align-items: stretch; justify-content: space-between;}
             header li{display:inline; margin:0 20px; white-space: nowrap;}
-            main{overflow: auto scroll; flex-grow: 1; padding: 8px 10px; display: flex; justify-content: center; align-items: flex-start;}
+            main{overflow: auto scroll; flex-grow: 1; padding: 8px 10px; display: flex; justify-content: center; align-items: flex-start; scroll-snap-type: y mandatory;}
             footer{flex-shrink: 0; text-align: right; margin:0; border-top: solid 1px #ccc; z-index: 4;}
             table{width: calc(100vw / 1.618);}
             th{position: sticky; top: 0px; z-index: 2; white-space: nowrap; cursor: pointer;}
@@ -252,16 +260,23 @@
             th:first-child{padding: unset;}
             td:first-child{width: 32px;}
             td:nth-child(n+3){width: 1%; white-space: nowrap;}
-            tr{transition: all 0.2s ease 0s;}
+            td:nth-child(2){display: grid; grid-template-columns: 1fr auto;}
+            td:nth-child(2) div{overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+            tr{transition: all 0.2s ease 0s; scroll-snap-align: start;}
             tr:hover{box-shadow: 0px 5px 40px -10px rgba(0,0,0,0.5);}
             span.material-icons + span{vertical-align: middle; padding: 0 2em 0 1em;}
-            section{width: 100%; height: 100%; position: fixed; left: 0; right: 0; z-index: 1; background-size: cover; background-repeat: no-repeat; background-attachment: fixed; background-position: center; filter: blur(3px); opacity: 0.13}
+            section{width: 99%; height: 99%; position: fixed; left: 0; right: 0; z-index: 1; background-size: cover; background-repeat: no-repeat; background-attachment: fixed; background-position: center; filter: blur(3px); opacity: 0.13}
             article{z-index: 3;}
             #idx-filter{width: unset;}
             #idx-path{vertical-align: text-top;}
+            #idx-path span{font-size: 16px; vertical-align: text-bottom; padding: 0 1em;}
             #idx-json{display: none;}
+            #idx-stheme{width: auto;}
             .header{background-color: #fff;}
             .material-icons{vertical-align: middle;}
+            .fs36{font-size: 36px;}
+            .dn{display: none;}
+            .fr{float: right;}
             .load {position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; background: #EEE; z-index: 9999}
             .lds {display: inline-block; width: 80px; height: 80px; position: fixed; left: 47.5%; top: 47.5%;}
             .lds:after {content: " "; display: block; width: 64px; height: 64px; margin: 8px; border-radius: 50%; border: 6px solid #ccc; border-color: #ccc transparent; animation: lds 1.2s linear infinite;}
@@ -276,7 +291,7 @@
         <header>
             <ul>
                 <li>
-                    <span class="material-icons" style="font-size: 36px;">drive_file_move</span>
+                    <span class="material-icons fs36">drive_file_move</span>
                     <span id="idx-path"></span>
                 </li>
                 <li></li>
@@ -288,7 +303,7 @@
                 </li>
                 <li>
                     <span class="material-icons">palette</span>
-                    <select id="idx-stheme" style="width:auto;">
+                    <select id="idx-stheme">
                         <option value="aqua">Aqua</option>
                         <option value="black">Black</option>
                         <option value="blue">Blue</option>
